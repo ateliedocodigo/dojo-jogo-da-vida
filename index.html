@@ -1,0 +1,108 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo da Vida</title>
+    <style type="text/css">
+    table {
+        border-collapse: collapse;
+    }
+    td {
+        width: 10px;
+        height: 10px;
+    }
+
+    td.live {
+        background-color: red;
+    }
+    </style>
+</head>
+<body>
+    <h1>Jogo da Vida</h1>
+    <div id="field"></div>
+    <script>
+    var game = {};
+    var columns = 20;
+    var lines = 20;
+
+    function start() {
+        var table = document.createElement('table');
+        var cell;
+        var row;
+
+        for (var i = 0; i < columns; i++) {
+            row = document.createElement('tr');
+            for (var j = 0; j < lines; j++) {
+                cell = document.createElement('td');
+                cell.className += parseInt(Math.random() * 10, 10) % 9 == 0 ? 'live' : '';
+                cell.id = 'position-' + i + '-' + j;
+                row.appendChild(cell);
+            }
+
+            table.appendChild(row);
+        }
+
+        document.body.appendChild(table);
+    }
+    start();
+
+    function next() {
+        var cell;
+        var saved_elements = [];
+
+        for (var i = 0; i < columns; i++) {
+            for (var j = 0; j < lines; j++) {
+                cell = document.querySelector('#position-' + i + '-' + j);
+                var neighbors = get_neighbors(i, j);
+//                cell.innerHTML = neighbors.length
+                isAlive = cell.className == 'live';
+
+                if (isAlive) {
+                    isAlive = neighbors.length == 3 || neighbors.length == 2;
+                } else {
+                    isAlive = neighbors.length == 3;
+                }
+
+                if (isAlive) {
+                    saved_elements.push(cell); 
+                }
+            }
+        }
+
+        var lives = document.querySelectorAll('td.live');
+        for (live in lives) {
+            if (lives.hasOwnProperty(live)) {
+                lives[live].className = '';
+            }
+        }
+
+        for (element in saved_elements) {
+            saved_elements[element].className = 'live';
+        }
+        var curLives = document.querySelectorAll('td.live');
+        if (curLives.length > 0) {
+            setTimeout(next, 500);
+        }
+    }
+   next();
+
+    function get_neighbors(x, y) {
+        var query = [];
+        for (var i = x - 1; i <= x + 1; i++) {
+            if (i < 0 || i >= columns) {
+                continue;
+            }
+
+
+            for (var j = y - 1; j <= y + 1; j++) {
+                if (j < 0 || j >= lines || (j == y && i == x)) {
+                    continue;
+                }
+                query.push('#position-' + i + '-' + j + '.live');
+            }
+        }
+        query = query.join(', ');
+        //console.log(query);
+        return document.querySelectorAll(query);
+    }
+    </script>
+</body>
+</html>
